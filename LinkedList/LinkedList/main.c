@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <stdbool.h>
 
 typedef struct node {
     int data;
@@ -17,11 +17,17 @@ typedef struct node {
 
 PNODE createList(void);
 void traverseList(PNODE phead);
+int getListLength(PNODE pHead);
+void sortList(PNODE pHead);
+bool insert_list(PNODE pHead, int position, int val);
+bool delete_list(PNODE pHead, int position, int * val);
 
 int main(void) {
     
     PNODE pHead = createList();
+    sortList(pHead);
     traverseList(pHead);
+    
 
     return 0;
 }
@@ -72,4 +78,98 @@ void traverseList(PNODE pHead) {
     }
     
     return;
+}
+
+/** 获取链表的长度*/
+int getListLength(PNODE pHead){
+    
+    PNODE pTail = pHead->pNext;
+    int length = 0;
+    
+    while (pTail != NULL) {
+        length++;
+        pTail = pTail->pNext;
+    }
+    
+    return length;
+    
+}
+
+/** 排序*/
+void sortList(PNODE pHead) {
+    int length = getListLength(pHead);
+    printf("链表的长度为:%d\n",length);
+    PNODE p,q;
+
+    int i, j,t;
+    
+    for (i=0,p=pHead->pNext; i < length-1; i++,p=p->pNext) {
+
+        for (j=i+1,q=p->pNext; j < length; j++,q=q->pNext) {
+            if (p->data > q->data) {
+                t = p->data;
+                p->data = q->data;
+                q->data = t;
+            }
+        }
+    }
+    
+    return;
+}
+
+/** 插入*/
+
+bool insert_list(PNODE pHead, int position, int val) {
+    
+    int i = 0;
+    PNODE p = pHead;
+    
+    while (p->pNext != NULL && i < position - 1) {
+        p = p->pNext;
+        i++;
+    }
+    
+    if (i > position - 1 || p == NULL) {
+        return false;
+    }
+    
+    PNODE pNew = (PNODE)malloc(sizeof(NODE));
+    
+    if (pNew == NULL) {
+        printf("内存g分配失败,程序退出!");
+        exit(-1);
+    }
+    
+    pNew->data = val;
+    
+    PNODE pTail = p->pNext;
+    p->pNext = pNew;
+    pNew->pNext = pTail;
+    
+    return true;
+    
+}
+
+/** 删除节点,并返回删除点的值*/
+bool delete_list(PNODE pHead, int position, int * val) {
+    
+    int i = 0;
+    PNODE p = pHead;
+    
+    while (p->pNext != NULL && i < position - 1) {
+        p = p->pNext;
+        i++;
+    }
+    
+    if (p == NULL || i > position - 1) {
+        return false;
+    }
+    
+    PNODE pTail = p->pNext;
+    *val = pTail->data;
+    p->pNext = p->pNext->pNext;
+    free(pTail);
+    pTail = NULL;
+    
+    return true;
 }
